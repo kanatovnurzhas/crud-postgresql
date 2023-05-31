@@ -17,6 +17,7 @@ func (sh *StudentHandler) DeleteStudent(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 			"status":  fiber.StatusInternalServerError,
+			"error":   wrappedErr.Error(),
 		})
 	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{

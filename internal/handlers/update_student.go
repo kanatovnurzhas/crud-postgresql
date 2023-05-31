@@ -18,6 +18,7 @@ func (sh *StudentHandler) UpdateStudent(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 			"status":  fiber.StatusInternalServerError,
+			"error":   wrappedErr.Error(),
 		})
 	}
 	if sh.service.StudentIsValid(student) {
@@ -28,6 +29,7 @@ func (sh *StudentHandler) UpdateStudent(ctx *fiber.Ctx) error {
 			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"success": false,
 				"status":  fiber.StatusInternalServerError,
+				"error":   wrappedErr.Error(),
 			})
 		}
 	} else {
