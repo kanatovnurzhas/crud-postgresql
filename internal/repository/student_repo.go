@@ -33,6 +33,15 @@ func (sr *studentRepository) CreateStudent(student models.Student) error {
 }
 
 func (sr *studentRepository) UpdateStudent(student models.Student, id int) error {
+	stmt, err := sr.DB.Prepare("UPDATE students SET firstName=$1, secondName=$2, email=$3, age=$4 WHERE id=$5")
+	if err != nil {
+		return fmt.Errorf("update student: %w", err)
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(student.FirstName, student.SecondName, student.Email, student.Age, id)
+	if err != nil {
+		return fmt.Errorf("update student, exec: %w", err)
+	}
 	return nil
 }
 
@@ -45,7 +54,7 @@ func (sr *studentRepository) GetAll() ([]models.Student, error) {
 	var students []models.Student
 	for rows.Next() {
 		student := models.Student{}
-		if err = rows.Scan(&student.Id, &student.FirstName, &student.SecondName, &student.Age); err != nil {
+		if err = rows.Scan(&student.Id, &student.FirstName, &student.SecondName, &student.Email, &student.Age); err != nil {
 			return nil, fmt.Errorf("get all students, scan: %w", err)
 		}
 		students = append(students, student)
@@ -57,9 +66,28 @@ func (sr *studentRepository) GetAll() ([]models.Student, error) {
 }
 
 func (sr *studentRepository) GetStudentByID(id int) (models.Student, error) {
-	return models.Student{}, nil
+	rows, err := sr.DB.Query(`SELECT * FROM students WHERE id = $1`, id)
+	if err != nil {
+		return models.Student{}, fmt.Errorf("get student by id: %w", err)
+	}
+	defer rows.Close()
+	student := models.Student{}
+	for rows.Next() {
+		if err = rows.Scan(&student.Id, &student.FirstName, &student.SecondName, &student.Email, &student.Age); err != nil {
+			return models.Student{}, fmt.Errorf("get student by id, scan: %w", err)
+		}
+		if err = rows.Err(); err != nil {
+			return models.Student{}, fmt.Errorf("get student by id, rows error: %w", err)
+		}
+	}
+	return student, nil
 }
 
 func (sr *studentRepository) DeleteStudent(id int) error {
+	query := `DELETE FROM students WHERE id = $1`
+	_, err := sr.DB.Exec(query, id)
+	if err != nil {
+		return fmt.Errorf("delete student, exec: %w", err)
+	}
 	return nil
 }
