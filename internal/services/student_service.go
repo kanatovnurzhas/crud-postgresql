@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/kanatovnurzhas/crud-postgresql/internal/models"
 	"github.com/kanatovnurzhas/crud-postgresql/internal/repository"
+	"regexp"
 )
 
 type IStudentService interface {
@@ -25,24 +26,42 @@ func NewStudentService(studRepo repository.IStudentRepository) IStudentService {
 }
 
 func (ss *studentService) CreateStudent(student models.Student) error {
-	return nil
+	//Должна быть какая то бизнес логика
+	return ss.StudRepo.CreateStudent(student)
 }
 
 func (ss *studentService) GetStudents() ([]models.Student, error) {
-	return nil, nil
+	//Должна быть какая то бизнес логика
+	return ss.StudRepo.GetAll()
 }
 
 func (ss *studentService) GetStudentByID(id int) (models.Student, error) {
-	return models.Student{}, nil
+	//Должна быть какая то бизнес логика
+	return ss.StudRepo.GetStudentByID(id)
 }
 
 func (ss *studentService) UpdateStudent(student models.Student, id int) error {
-	return nil
+	//Должна быть какая то бизнес логика
+	return ss.StudRepo.UpdateStudent(student, id)
 }
 
 func (ss *studentService) DeleteStudent(id int) error {
-	return nil
+	//Должна быть какая то бизнес логика
+	return ss.StudRepo.DeleteStudent(id)
 }
 func (ss *studentService) StudentIsValid(student models.Student) bool {
-	return false
+	if student.FirstName == "" || student.SecondName == "" {
+		return false
+	}
+
+	if student.Age <= 0 || student.Age > 120 {
+		return false
+	}
+
+	nameRegex := regexp.MustCompile(`^[a-zA-Z\s]+$`)
+	if !nameRegex.MatchString(student.FirstName) || !nameRegex.MatchString(student.SecondName) {
+		return false
+	}
+
+	return true
 }
