@@ -1,25 +1,30 @@
 version: '3.9'
 
 services:
-  postgres:
+  go_db:
     image: postgres
-    container_name: postgres
+    container_name: go_db
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=crud
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
-  api:
+  go_app:
+    container_name: go_app
     build: .
+    environment:
+      - DB_HOST=go_db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=admin
+      - DB_NAME=crud
     ports:
       - "7777:7777"
     depends_on:
-      - postgres
-    environment:
-      - DB_HOST:postgres
-      - DB_PORT:5432
-      - DB_USERNAME:postgres
-      - DB_PASSWORD:admin
-      - DB_NAME:crud
+      - go_db
+volumes:
+  pgdata: {}
