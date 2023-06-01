@@ -1,4 +1,6 @@
 run:
 	go run cmd/main.go
-compose:
+build:
 	docker-compose up --build
+compose:
+	docker-compose up -d

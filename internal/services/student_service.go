@@ -1,9 +1,15 @@
 package services
 
 import (
+	"errors"
 	"github.com/kanatovnurzhas/crud-postgresql/internal/models"
 	"github.com/kanatovnurzhas/crud-postgresql/internal/repository"
 	"regexp"
+)
+
+var (
+	ErrEmptyResult = errors.New("is empty")
+	ErrNoStudent   = errors.New("student not found ")
 )
 
 type IStudentService interface {
@@ -32,12 +38,27 @@ func (ss *studentService) CreateStudent(student models.Student) error {
 
 func (ss *studentService) GetStudents() ([]models.Student, error) {
 	//Должна быть какая то бизнес логика
-	return ss.StudRepo.GetAll()
+	students, err := ss.StudRepo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	if len(students) == 0 {
+		return nil, ErrEmptyResult
+	}
+	return students, nil
 }
 
 func (ss *studentService) GetStudentByID(id int) (models.Student, error) {
 	//Должна быть какая то бизнес логика
-	return ss.StudRepo.GetStudentByID(id)
+	student, err := ss.StudRepo.GetStudentByID(id)
+	if err != nil {
+		return models.Student{}, err
+	}
+	studentTemp := models.Student{}
+	if student == studentTemp {
+		return models.Student{}, ErrNoStudent
+	}
+	return student, err
 }
 
 func (ss *studentService) UpdateStudent(student models.Student, id int) error {
